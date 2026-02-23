@@ -365,23 +365,19 @@
             }
             
             if (data['Global Quote']) {
-    const quote = data['Global Quote'];
+                const quote = data['Global Quote'];
+                const currentPrice = parseFloat(quote['05. price'] ?? 0);
+                const previousClose = parseFloat(quote['08. previous close'] ?? 0);
+                const change = parseFloat(quote['09. change'] ?? 0);
+                const changePercent = parseFloat(quote['10. change percent']?.replace('%', '') ?? 0);
 
-    const currentPrice = parseFloat(quote['05. price'] ?? 0);
-    const previousClose = parseFloat(quote['08. previous close'] ?? 0);
-    const change = parseFloat(quote['09. change'] ?? 0);
-
-    const changePercent = parseFloat(
-        quote['10. change percent']?.replace('%', '') ?? 0
-    );
-
-    return {
-        price: currentPrice,
-        change,
-        changePercent,
-        previousClose
-    };
-}
+            return {
+                price: currentPrice,
+                change,
+                changePercent,
+                previousClose
+                };
+            }
             
             throw new Error('Geen data ontvangen van Alpha Vantage');
             
