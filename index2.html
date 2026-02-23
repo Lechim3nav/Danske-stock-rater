@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Danske Bank Koers Alert</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+```
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        background: linear-gradient(135deg, #0051a5 0%, #003d7a 100%);
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        color: white;
+    }
+
+    .container {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 20px;
+        padding: 40px;
+        max-width: 500px;
+        width: 100%;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        color: #333;
+    }
+
+    h1 {
+        color: #0051a5;
+        text-align: center;
+        margin-bottom: 10px;
+        font-size: 28px;
+    }
+
+    .subtitle {
+        text-align: center;
+        color: #666;
+        margin-bottom: 30px;
+        font-size: 14px;
+    }
+
+    .price-display {
+        background: linear-gradient(135deg, #0051a5, #003d7a);
+        color: white;
+        padding: 30px;
+        border-radius: 15px;
+        text-align: center;
+        margin-bottom: 30px;
+    }
+
+    .price-label {
+        font-size: 14px;
+        opacity: 0.9;
+        margin-bottom: 5px;
+    }
+
+    .current-price {
+        font-size: 48px;
+        font-weight: bold;
+        margin: 10px 0;
+    }
+
+    .price-change {
+        font-size: 16px;
+        margin-top: 5px;
+    }
+
+    .price-change.positive {
+        color: #4ade80;
+    }
+
+    .price-change.negative {
+        color: #f87171;
+    }
+
+    .input-group {
+        margin-bottom: 25px;
+    }
+
+    label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+        color: #0051a5;
+    }
+
+    input[type="number"] {
+        width: 100%;
+        padding: 15px;
+        border: 2px solid #e5e7eb;
+        border-radius: 10px;
+        font-size: 18px;
+        transition: border-color 0.3s;
+    }
+
+    input[type="number"]:focus {
+        outline: none;
+        border-color: #0051a5;
+    }
+
+    .button {
+        width: 100%;
+        padding: 18px;
+        border: none;
+        border-radius: 10px;
+        font-size: 18px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+        margin-bottom: 15px;
+    }
+
+    .button-primary {
+        background: linear-gradient(135deg, #0051a5, #003d7a);
+        color: white;
+    }
+
+    .button-primary:active {
+        transform: scale(0.98);
+    }
+
+    .button-secondary {
+        background: #f3f4f6;
+        color: #666;
+    }
+
+    .status {
+        text-align: center;
+        padding: 15px;
+        border-radius: 10px;
+        margin-top: 20px;
+        font-weight: 500;
+    }
+
+    .status.active {
+        background: #dcfce7;
+        color: #166534;
+    }
+
+    .status.inactive {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    .status.waiting {
+        background: #fef3c7;
+        color: #92400e;
+    }
+
+    .popup-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.8);
+        z-index: 1000;
+        animation: fadeIn 0.3s;
+    }
+
+    .popup {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: white;
+        padding: 40px;
+        border-radius: 20px;
+        text-align: center;
+        max-width: 400px;
+        width: 90%;
+        animation: slideUp 0.3s;
+    }
+
+    .popup-icon {
+        font-size: 80px;
+        margin-bottom: 20px;
+    }
+
+    .popup h2 {
+        color: #0051a5;
+        margin-bottom: 15px;
+        font-size: 24px;
+    }
+
+    .popup p {
+        color: #666;
+        margin-bottom: 25px;
+        font-size: 18px;
+    }
+
+    .popup-price {
+        font-size: 36px;
+        font-weight: bold;
+        color: #16a34a;
+        margin: 20px 0;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    @keyframes slideUp {
+        from {
+            transform: translate(-50%, -40%);
+            opacity: 0;
+        }
+        to {
+            transform: translate(-50%, -50%);
+            opacity: 1;
+        }
+    }
+
+    @keyframes pulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+    }
+
+    .pulse {
+        animation: pulse 1s infinite;
+    }
+
+    .last-update {
+        text-align: center;
+        color: #999;
+        font-size: 12px;
+        margin-top: 15px;
+    }
+</style>
+```
+
+</head>
+<body>
+    <div class="container">
+        <h1>📈 Danske Bank Alert</h1>
+        <p class="subtitle">Real-time koers monitoring via Alpha Vantage API</p>
+
+```
+    <div class="price-display">
+        <div class="price-label">Huidige Koers</div>
+        <div class="current-price" id="currentPrice">--</div>
+        <div class="price-change" id="priceChange">Laden...</div>
+    </div>
+
+    <div class="input-group">
+        <label for="priceLimit">Stel Limiet In (DKK)</label>
+        <input type="number" id="priceLimit" step="0.01" placeholder="Bijv. 150.00">
+    </div>
+
+    <button class="button button-primary" id="startBtn">Start Monitoring</button>
+    <button class="button button-secondary" id="stopBtn" style="display: none;">Stop Monitoring</button>
+
+    <div class="status inactive" id="status">Monitoring is gestopt</div>
+    <div class="last-update" id="lastUpdate"></div>
+</div>
+
+<div class="popup-overlay" id="popupOverlay">
+    <div class="popup pulse">
+        <div class="popup-icon">🚨</div>
+        <h2>Limiet Bereikt!</h2>
+        <p>Danske Bank AS heeft uw limiet bereikt:</p>
+        <div class="popup-price" id="popupPrice">--</div>
+        <button class="button button-primary" onclick="closePopup()">Sluiten</button>
+    </div>
+</div>
+
+<script>
+    let monitoringInterval;
+    let isMonitoring = false;
+    let previousPrice = null;
+    let hasAlerted = false;
+
+    const currentPriceEl = document.getElementById('currentPrice');
+    const priceChangeEl = document.getElementById('priceChange');
+    const priceLimitInput = document.getElementById('priceLimit');
+    const startBtn = document.getElementById('startBtn');
+    const stopBtn = document.getElementById('stopBtn');
+    const statusEl = document.getElementById('status');
+    const popupOverlay = document.getElementById('popupOverlay');
+    const popupPriceEl = document.getElementById('popupPrice');
+    const lastUpdateEl = document.getElementById('lastUpdate');
+
+    // Alert geluid maken met Web Audio API
+    function playAlertSound() {
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+
+        oscillator.frequency.value = 800;
+        oscillator.type = 'sine';
+
+        gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+
+        oscillator.start(audioContext.currentTime);
+        oscillator.stop(audioContext.currentTime + 0.5);
+
+        // Herhaal 3 keer
+        setTimeout(() => {
+            const osc2 = audioContext.createOscillator();
+            const gain2 = audioContext.createGain();
+            osc2.connect(gain2);
+            gain2.connect(audioContext.destination);
+            osc2.frequency.value = 1000;
+            osc2.type = 'sine';
+            gain2.gain.setValueAtTime(0.3, audioContext.currentTime);
+            gain2.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+            osc2.start();
+            osc2.stop(audioContext.currentTime + 0.5);
+        }, 600);
+    }
+
+    function showAlert(price) {
+        popupPriceEl.textContent = `DKK ${price.toFixed(2)}`;
+        popupOverlay.style.display = 'block';
+        playAlertSound();
+        
+        // Vibratie als beschikbaar
+        if (navigator.vibrate) {
+            navigator.vibrate([200, 100, 200, 100, 200]);
+        }
+    }
+
+    function closePopup() {
+        popupOverlay.style.display = 'none';
+    }
+
+    // VERVANG 'YOUR_API_KEY_HERE' met je Alpha Vantage API key
+    const ALPHA_VANTAGE_API_KEY = 'DFKDNV5SCQFP41X6';
+    
+    async function fetchStockPrice() {
+        try {
+            // Danske Bank op Copenhagen Stock Exchange
+            // Alpha Vantage gebruikt DANSKE.CPH als ticker symbol
+            const symbol = 'DANSKE.CPH';
+            
+            const url = `https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${symbol}&apikey=${ALPHA_VANTAGE_API_KEY}`;
+            
+            const response = await fetch(url);
+            const data = await response.json();
+            
+            // Check voor error messages
+            if (data['Error Message']) {
+                throw new Error('Ongeldige ticker of API probleem');
+            }
+            
+            if (data['Note']) {
+                throw new Error('API limiet bereikt - wacht 1 minuut');
+            }
+            
+            if (data['Global Quote']) {
+                const quote = data['Global Quote'];
+                const currentPrice = parseFloat(quote['05. price']);
+                const previousClose = parseFloat(quote['08. previous close']);
+                const change = parseFloat(quote['09. change']);
+                const changePercent = parseFloat(quote['10. change percent'].replace('%', ''));
+                
+                return {
+                    price: currentPrice,
+                    change: change,
+                    changePercent: changePercent,
+                    previousClose: previousClose,
+                    isDemo: false
+                };
+            }
+            
+            throw new Error('Geen data ontvangen van Alpha Vantage');
+            
+        } catch (error) {
+            console.error('Fout bij ophalen koers:', error);
+            
+            // Toon foutmelding aan gebruiker
+            priceChangeEl.textContent = `Fout: ${error.message}`;
+            priceChangeEl.className = 'price-change negative';
+            
+            return null;
+        }
+    }
+
+    function updatePriceDisplay(stockData) {
+        if (!stockData) return;
+
+        currentPriceEl.textContent = `DKK ${stockData.price.toFixed(2)}`;
+        
+        const changeText = `${stockData.change >= 0 ? '+' : ''}${stockData.change.toFixed(2)} (${stockData.changePercent >= 0 ? '+' : ''}${stockData.changePercent.toFixed(2)}%)`;
+        priceChangeEl.textContent = changeText;
+        priceChangeEl.className = stockData.change >= 0 ? 'price-change positive' : 'price-change negative';
+
+        const now = new Date();
+        lastUpdateEl.textContent = `Laatste update: ${now.toLocaleTimeString('nl-NL')}`;
+    }
+
+    async function checkPrice() {
+        const stockData = await fetchStockPrice();
+        
+        if (stockData) {
+            updatePriceDisplay(stockData);
+            
+            const limit = parseFloat(priceLimitInput.value);
+            
+            if (!isNaN(limit) && stockData.price >= limit && !hasAlerted) {
+                showAlert(stockData.price);
+                hasAlerted = true;
+            }
+            
+            // Reset alert als prijs weer onder limiet komt
+            if (!isNaN(limit) && stockData.price < limit) {
+                hasAlerted = false;
+            }
+        }
+    }
+
+    function startMonitoring() {
+        const limit = parseFloat(priceLimitInput.value);
+        
+        if (isNaN(limit) || limit <= 0) {
+            alert('Voer een geldig limietbedrag in');
+            return;
+        }
+
+        isMonitoring = true;
+        hasAlerted = false;
+        
+        startBtn.style.display = 'none';
+        stopBtn.style.display = 'block';
+        priceLimitInput.disabled = true;
+        
+        statusEl.className = 'status active';
+        statusEl.textContent = `Monitoring actief - Limiet: DKK ${limit.toFixed(2)}`;
+
+        // Direct ophalen
+        checkPrice();
+        
+        // Elke 15 minuten ophalen (900 seconden)
+        // Dit betekent maximaal 96 calls per dag, ruim binnen de Alpha Vantage limiet van 25/dag
+        monitoringInterval = setInterval(checkPrice, 900000);
+    }
+
+    function stopMonitoring() {
+        isMonitoring = false;
+        clearInterval(monitoringInterval);
+        
+        startBtn.style.display = 'block';
+        stopBtn.style.display = 'none';
+        priceLimitInput.disabled = false;
+        
+        statusEl.className = 'status inactive';
+        statusEl.textContent = 'Monitoring is gestopt';
+    }
+
+    startBtn.addEventListener('click', startMonitoring);
+    stopBtn.addEventListener('click', stopMonitoring);
+
+    // Initiële prijs ophalen bij laden
+    fetchStockPrice().then(updatePriceDisplay);
+</script>
+```
+
+</body>
+</html>
