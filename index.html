@@ -366,10 +366,14 @@
             
             if (data['Global Quote']) {
                 const quote = data['Global Quote'];
-                const currentPrice = parseFloat(quote['05. price']);
-                const previousClose = parseFloat(quote['08. previous close']);
-                const change = parseFloat(quote['09. change']);
-               // const changePercent = parseFloat(quote['10. change percent'].replace('%', ''));
+                const currentPrice = parseFloat(quote['05. price'] || 0);
+                const previousClose = parseFloat(quote['08. previous close'] || 0);
+                const change = parseFloat(quote['09. change'] || 0);
+
+                const changePercentRaw = quote['10. change percent'];
+                const changePercent = typeof changePercentRaw === 'string'
+                      ? parseFloat(changePercentRaw.replace('%', ''))
+                      : 0;
                 
                 return {
                     price: currentPrice,
